@@ -1,173 +1,49 @@
 #include <Arduino.h>
 #include "Joystick.h"
+#include <Bounce2.h>
+
+#define PIN_EJE_X A1
+#define PIN_EJE_Y A0
+#define PIN_EJE_Z A2
+#define PIN_BOTON_1 15
+#define PIN_LED_1 9
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
-  JOYSTICK_TYPE_JOYSTICK, 32, 0,
-  true, true, true, true, true, true,
+  JOYSTICK_TYPE_JOYSTICK, 2, 0,
+  true, true, false, true, false, false,
   false, false, false, false, false);
 
-// Set to true to test "Auto Send" mode or false to test "Manual Send" mode.
-const bool testAutoSendMode = true;
-//const bool testAutoSendMode = false;
-
-const unsigned long gcCycleDelta = 1000;
-const unsigned long gcAnalogDelta = 25;
-const unsigned long gcButtonDelta = 500;
-unsigned long gNextTime = 0;
-unsigned int gCurrentStep = 0;
-
-void testSingleButtonPush(unsigned int button)
-{
-  if (button > 0)
-  {
-    Joystick.releaseButton(button - 1);
-  }
-  if (button < 32)
-  {
-    Joystick.pressButton(button);
-  }
-}
-
-void testMultiButtonPush(unsigned int currentStep) 
-{
-  for (int button = 0; button < 32; button++)
-  {
-    if ((currentStep == 0) || (currentStep == 2))
-    {
-      if ((button % 2) == 0)
-      {
-        Joystick.pressButton(button);
-      } else if (currentStep != 2)
-      {
-        Joystick.releaseButton(button);
-      }
-    } // if ((currentStep == 0) || (currentStep == 2))
-    if ((currentStep == 1) || (currentStep == 2))
-    {
-      if ((button % 2) != 0)
-      {
-        Joystick.pressButton(button);
-      } else if (currentStep != 2)
-      {
-        Joystick.releaseButton(button);
-      }
-    } // if ((currentStep == 1) || (currentStep == 2))
-    if (currentStep == 3)
-    {
-      Joystick.releaseButton(button);
-    } // if (currentStep == 3)
-  } // for (int button = 0; button < 32; button++)
-}
-
-void testXYAxis(unsigned int currentStep)
-{
-  int xAxis;
-  int yAxis;
-  
-  if (currentStep < 256)
-  {
-    xAxis = currentStep - 127;
-    yAxis = -127;
-    Joystick.setXAxis(xAxis);
-    Joystick.setYAxis(yAxis);
-  } 
-  else if (currentStep < 512)
-  {
-    yAxis = currentStep - 256 - 127;
-    Joystick.setYAxis(yAxis);
-  }
-  else if (currentStep < 768)
-  {
-    xAxis = 128 - (currentStep - 512);
-    Joystick.setXAxis(xAxis);
-  }
-  else if (currentStep < 1024)
-  {
-    yAxis = 128 - (currentStep - 768);
-    Joystick.setYAxis(yAxis);
-  }
-  else if (currentStep < 1024 + 128)
-  {
-    xAxis = currentStep - 1024 - 127;
-    Joystick.setXAxis(xAxis);
-    Joystick.setYAxis(xAxis);
-  }
-}
-
-void testThrottleRudder(unsigned int value)
-{
-  Joystick.setThrottle(value);
-  Joystick.setRudder(255 - value);
-}
+Bounce2::Button bounce_button_1 = Bounce2::Button();
 
 void setup() {
 
-  Joystick.setXAxisRange(-127, 127);
-  Joystick.setYAxisRange(-127, 127);
-  Joystick.setZAxisRange(-127, 127);
-  Joystick.setThrottleRange(0, 255);
-  Joystick.setRudderRange(0, 255);
+  Joystick.setXAxisRange(-127,127);
+  Joystick.setYAxisRange(-127,127);
+  Joystick.setRxAxisRange(-127,127);
   
-  if (testAutoSendMode)
-  {
-    Joystick.begin();
-  }
-  else
-  {
-    Joystick.begin(false);
-  }
-  
-  pinMode(A0, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
+  Joystick.begin();
+
+  pinMode(PIN_BOTON_1, INPUT_PULLUP);
+  pinMode(PIN_LED_1, OUTPUT);
+
+  bounce_button_1.attach(PIN_BOTON_1, INPUT_PULLUP);
+  bounce_button_1.interval(10);
+  bounce_button_1.setPressedState(LOW);
+
+  Serial.begin(9600);
+  Serial.println("##SETUP COMPLETADO");
+
 }
 
 void loop() {
 
-  // System Disabled
-  if (digitalRead(A0) != 0)
-  {
-    // Turn indicator light off.
-    digitalWrite(LED_BUILTIN, 0);
-    return;
-  }
+  Joystick.setXAxis(map(analogRead(PIN_EJE_X),280,743,-127,127));
+  Joystick.setYAxis(map(analogRead(PIN_EJE_Y),280,743,-127,127));
+  Joystick.setRxAxis(map(analogRead(PIN_EJE_Z),200,823,127,-127));
+  bounce_button_1.update();
+  Joystick.setButton(0,!bounce_button_1.read());
+  Joystick.sendState();
 
-  // Turn indicator light on.
-  digitalWrite(LED_BUILTIN, 1);
-  
-  if (millis() >= gNextTime)
-  {
-   
-    if (gCurrentStep < 33)
-    {
-      gNextTime = millis() + gcButtonDelta;
-      testSingleButtonPush(gCurrentStep);
-    } 
-    else if (gCurrentStep < 37)
-    {
-      gNextTime = millis() + gcButtonDelta;
-      testMultiButtonPush(gCurrentStep - 33);
-    }
-    else if (gCurrentStep < (37 + 256))
-    {
-      gNextTime = millis() + gcAnalogDelta;
-      testThrottleRudder(gCurrentStep - 37);
-    }
-    else if (gCurrentStep < (37 + 256 + 1024 + 128))
-    {
-      gNextTime = millis() + gcAnalogDelta;
-      testXYAxis(gCurrentStep - (37 + 256));
-    }
-    
-    if (testAutoSendMode == false)
-    {
-      Joystick.sendState();
-    }
-    
-    gCurrentStep++;
-    if (gCurrentStep >= (37 + 256 + 1024 + 128))
-    {
-      gNextTime = millis() + gcCycleDelta;
-      gCurrentStep = 0;
-    }
-  }
+  // delay(10);
+
 }
