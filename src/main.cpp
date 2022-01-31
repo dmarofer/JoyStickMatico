@@ -130,7 +130,7 @@ void loop() {
   Joystick.sendState();
 
   // Para apagar los botones logicos una vez transcurrido X tiempo desde el encendido
-  if ((ChangeTime != 0 && millis() - ChangeTime) > CLEARTIME ){
+  if (ChangeTime != 0 && (millis() - ChangeTime) > CLEARTIME ){
 
     Joystick.releaseButton(0);
     Joystick.releaseButton(1);
