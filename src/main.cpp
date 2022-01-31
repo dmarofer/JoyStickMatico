@@ -1,7 +1,13 @@
+#pragma region LIBS
+
 #include <Arduino.h>
 #include "Joystick.h"
 #include <OneButton.h> // Interesante: https://github.com/mathertel/OneButton
 #include <jled.h> // Para los led, a ver si rula esta vez ....
+
+#pragma endregion
+
+#pragma region CONFIG
 
 #define PIN_EJE_X A1
 #define PIN_EJE_Y A0
@@ -10,6 +16,10 @@
 #define PIN_LED_1 9
 
 #define CLEARTIME 100 // ms antes de apagar los botones logicos despues de un cambio
+
+#pragma endregion
+
+#pragma region CALLOUTS
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
   JOYSTICK_TYPE_JOYSTICK, 2, 0,
@@ -62,6 +72,10 @@ static void handleLongPressStop() {
 */
 
 // ############################################
+
+#pragma endregion
+
+#pragma region ARDUINOCODE
 
 void setup() {
 
@@ -140,3 +154,5 @@ void loop() {
   }
 
 }
+
+#pragma endregion
