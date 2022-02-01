@@ -22,7 +22,7 @@
 #pragma region CALLOUTS
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
-  JOYSTICK_TYPE_JOYSTICK, 4, 0,
+  JOYSTICK_TYPE_JOYSTICK, 6, 0,
   true, true, true, true, true, true,
   false, false, false, false, false);
 
@@ -37,6 +37,7 @@ JLed Led1 = JLed(PIN_LED_1);
 unsigned long ChangeTime = 0; // Variable para los millis cuando hay un cambio de boton
 
 bool EjesRotacion = false; // Variable para saber si el modo ejes esta en normal o alternativos
+bool EstadoBoton4 = false, EstadoBoton5 = false; // Estado interno para los botones toogle
 
 // ############################################
 // FUNCIONES DE MANEJO DEL BOTON
@@ -83,11 +84,34 @@ static void handleLongPressStart() {
 
 }
 
-/*
+
 static void handleMultiClick() {
-  Serial.println("Clicked!");
+
+  switch (Boton1.getNumberClicks())
+  {
+  case 3:
+    
+    if(!EjesRotacion){
+
+      EstadoBoton4 = !EstadoBoton4;
+
+    }
+  
+    else{
+
+      EstadoBoton5 = !EstadoBoton5;
+
+    }
+
+    break;
+  
+  default:
+    break;
+  }
+
 }
 
+/*
 static void handleDuringLongPress() {
   Serial.println("Clicked!");
 }
@@ -107,6 +131,9 @@ void setup() {
 
   ChangeTime = 0;
   EjesRotacion = false;
+  EstadoBoton4 = false;
+  EstadoBoton5 = false;
+
 
   Joystick.setXAxisRange(-127,127);
   Joystick.setYAxisRange(-127,127);
@@ -123,7 +150,8 @@ void setup() {
   Boton1.attachClick(handleClick);
   Boton1.attachDoubleClick(handleDoubleClick);
   Boton1.attachLongPressStart(handleLongPressStart);
-  
+  Boton1.attachMultiClick(handleMultiClick);
+    
   Boton1.setDebounceTicks(20); // ms de debounce
   Boton1.setClickTicks(150); // ms para deteccion de multiclick
   Boton1.setPressTicks(300); // ms para HOLD
@@ -167,6 +195,9 @@ void loop() {
 
   }
 
+  Joystick.setButton(4,EstadoBoton4);
+  Joystick.setButton(5,EstadoBoton5);
+
   Joystick.sendState();
 
   // Para apagar los botones logicos una vez transcurrido X tiempo desde el encendido
@@ -178,6 +209,7 @@ void loop() {
     Joystick.releaseButton(3);
     Joystick.sendState();
     ChangeTime=0;
+    
     
   }
 
