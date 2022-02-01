@@ -34,4 +34,4 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 
 ![](Imagen1.png)
 
-![](Imagen2.png)
+![](Imagen2.jpg)
