@@ -2,17 +2,19 @@
 JoyStick controlado por Arduino, principalmente para su uso en Simuladores (Farming Simulator)
 
 Desarrollado con Visual Code + PlatformIO en Framework Arduino
+
 Desarrollado por Diego Maroto, Enero 2022 - dmarofer@diegomaroto.net
+
 https://bilbaomakers.org/
+
 Licencia: GNU General Public License v3.0 - https://www.gnu.org/licenses/gpl-3.0.html
-
-
 
 
 Desarrollado con la idea de multiplicar el numero de ejes y botones cuando es necesario tenerlos pero no
 utilizarlos a la vez.
 
 El control fisico dispone de un JoyStick de 3 ejes y un boton
+
 Al Sistema operativo le presenta 6 ejes y 6 botones que funcionan Asi
 
 MODO 1 (Modo "Normal" - led apagado)
