@@ -22,7 +22,7 @@
 #pragma region CALLOUTS
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
-  JOYSTICK_TYPE_JOYSTICK, 2, 0,
+  JOYSTICK_TYPE_JOYSTICK, 4, 0,
   true, true, true, true, true, true,
   false, false, false, false, false);
 
@@ -42,13 +42,39 @@ bool EjesRotacion = false; // Variable para saber si el modo ejes esta en normal
 // FUNCIONES DE MANEJO DEL BOTON
 
 static void handleClick() {
-  Joystick.pressButton(0);
+  
+  if(!EjesRotacion){
+
+    Joystick.pressButton(0);
+
+  }
+  
+  else{
+
+    Joystick.pressButton(2);
+
+  }
+  
   ChangeTime = millis();
+
 }
 
 static void handleDoubleClick() {
-  Joystick.pressButton(1);
+  
+  if(!EjesRotacion){
+
+    Joystick.pressButton(1);
+
+  }
+  
+  else{
+
+    Joystick.pressButton(3);
+
+  }
+  
   ChangeTime = millis();
+
 }
 
 static void handleLongPressStart() {
@@ -99,8 +125,8 @@ void setup() {
   Boton1.attachLongPressStart(handleLongPressStart);
   
   Boton1.setDebounceTicks(20); // ms de debounce
-  Boton1.setClickTicks(200); // ms para deteccion de multiclick
-  Boton1.setPressTicks(1000); // ms para HOLD
+  Boton1.setClickTicks(150); // ms para deteccion de multiclick
+  Boton1.setPressTicks(300); // ms para HOLD
 
   Serial.begin(9600);
   Serial.println("##SETUP COMPLETADO");
@@ -148,6 +174,8 @@ void loop() {
 
     Joystick.releaseButton(0);
     Joystick.releaseButton(1);
+    Joystick.releaseButton(2);
+    Joystick.releaseButton(3);
     Joystick.sendState();
     ChangeTime=0;
     
