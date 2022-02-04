@@ -40,6 +40,7 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 #include "Joystick.h"
 #include <OneButton.h> // Interesante: https://github.com/mathertel/OneButton
 #include <jled.h> // Para los led, a ver si rula esta vez ....
+#include <MD_UISwitch.h> //Para el teclado 4x4
 
 #pragma endregion
 
@@ -50,7 +51,15 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 #define PIN_EJE_Y A0
 #define PIN_EJE_Z A2
 #define PIN_BOTON_1 15
-#define PIN_LED_1 9
+#define PIN_LED_1 10
+
+//Para el teclado 4x4
+uint8_t rowPins[] = { 5, 4, 3, 2 };     // connected to keypad row pinouts
+uint8_t colPins[] = { 9, 8, 7, 6 };   // connected to the keypad column pinouts
+const uint8_t ROWS = sizeof(rowPins);
+const uint8_t COLS = sizeof(colPins);
+char kt[(ROWS*COLS) + 1] = "123A456B789C*0#D";  //define the symbols for the keypad
+
 
 #define CLEARTIME 100 // ms antes de apagar los botones logicos despues de un cambio
 
@@ -60,7 +69,7 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 
 // Objeto del Joystick Logico
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, 
-  JOYSTICK_TYPE_JOYSTICK, 6, 0,
+  JOYSTICK_TYPE_JOYSTICK, 38, 0,
   true, true, true, true, true, true,
   false, false, false, false, false);
 
@@ -71,13 +80,16 @@ OneButton Boton1 = OneButton(
   true         // Enable internal pull-up resistor
 );
 
+//Objeto para el teclado 4x4
+MD_UISwitch_Matrix Teclado(ROWS, COLS, rowPins, colPins, kt);
+
 // Objeto para el led
 JLed Led1 = JLed(PIN_LED_1);
 
 // Variables internas
 unsigned long ChangeTime = 0; // Variable para los millis cuando hay un cambio de boton
 bool ModoShift = false; // Variable para saber si el Joystick esta en Modo Normal o modo Shift
-bool EstadoBoton4 = false, EstadoBoton5 = false; // Estado interno para los botones toogle
+bool EstadoBoton36 = false, EstadoBoton37 = false; // Estado interno para los botones toogle
 
 // ############################################
 // FUNCIONES DE MANEJO DEL BOTON
@@ -140,13 +152,13 @@ static void handleMultiClick() {
     
     if(!ModoShift){
 
-      EstadoBoton4 = !EstadoBoton4;
+      EstadoBoton36 = !EstadoBoton36;
 
     }
   
     else{
 
-      EstadoBoton5 = !EstadoBoton5;
+      EstadoBoton37 = !EstadoBoton37;
 
     }
 
@@ -167,8 +179,8 @@ void setup() {
   // Inicializacion de variables
   ChangeTime = 0;
   ModoShift = false;
-  EstadoBoton4 = false;
-  EstadoBoton5 = false;
+  EstadoBoton36 = false;
+  EstadoBoton37 = false;
 
   // Configuracion del rango de los ejes logicos
   Joystick.setXAxisRange(-127,127);
@@ -196,6 +208,15 @@ void setup() {
   pinMode(PIN_BOTON_1, INPUT_PULLUP);
   pinMode(PIN_LED_1, OUTPUT);
 
+  //Teclado
+  Teclado.begin();
+  Teclado.enableRepeat(false);
+  Teclado.enableRepeatResult(false);
+  Teclado.enableDoublePress(false);
+  Teclado.enableLongPress(true);
+  Teclado.setDoublePressTime(50);
+  Teclado.setLongPressTime(100);
+
   // Puerto serie. Fin del setup
   Serial.begin(9600);
   Serial.println("##SETUP COMPLETADO");
@@ -209,6 +230,166 @@ void loop() {
   Led1.Update();
   Boton1.tick();
 
+  //Lectura del teclado
+  MD_UISwitch::keyResult_t ModoTeclaPulsada = Teclado.read();
+  switch(ModoTeclaPulsada){
+    
+    case MD_UISwitch::KEY_PRESS:     
+      
+      switch ((char)Teclado.getKey()){
+
+        case '1':
+        Joystick.pressButton(4);
+        break;
+
+        case '2':
+        Joystick.pressButton(5);
+        break;
+
+        case '3':
+        Joystick.pressButton(6);
+        break;
+
+        case 'A':
+        Joystick.pressButton(7);
+        break;
+
+        case '4':
+        Joystick.pressButton(8);
+        break;
+
+        case '5':
+        Joystick.pressButton(9);
+        break;
+
+        case '6':
+        Joystick.pressButton(10);
+        break;
+
+        case 'B':
+        Joystick.pressButton(11);
+        break;
+
+        case '7':
+        Joystick.pressButton(12);
+        break;
+
+        case '8':
+        Joystick.pressButton(13);
+        break;
+
+        case '9':
+        Joystick.pressButton(14);
+        break;
+
+        case 'C':
+        Joystick.pressButton(15);
+        break;
+
+        case '*':
+        Joystick.pressButton(16);
+        break;
+
+        case '0':
+        Joystick.pressButton(17);
+        break;
+
+        case '#':
+        Joystick.pressButton(18);
+        break;
+
+        case 'D':
+        Joystick.pressButton(19);
+        break;
+      
+      default:
+        break;
+     
+     }
+      
+    ChangeTime = millis();
+    break;
+    
+    case MD_UISwitch::KEY_LONGPRESS: 
+
+      switch ((char)Teclado.getKey()){
+
+        case '1':
+        Joystick.pressButton(20);
+        break;
+
+        case '2':
+        Joystick.pressButton(21);
+        break;
+
+        case '3':
+        Joystick.pressButton(22);
+        break;
+
+        case 'A':
+        Joystick.pressButton(23);
+        break;
+
+        case '4':
+        Joystick.pressButton(24);
+        break;
+
+        case '5':
+        Joystick.pressButton(25);
+        break;
+
+        case '6':
+        Joystick.pressButton(26);
+        break;
+
+        case 'B':
+        Joystick.pressButton(27);
+        break;
+
+        case '7':
+        Joystick.pressButton(28);
+        break;
+
+        case '8':
+        Joystick.pressButton(29);
+        break;
+
+        case '9':
+        Joystick.pressButton(30);
+        break;
+
+        case 'C':
+        Joystick.pressButton(31);
+        break;
+
+        case '*':
+        Joystick.pressButton(32);
+        break;
+
+        case '0':
+        Joystick.pressButton(33);
+        break;
+
+        case '#':
+        Joystick.pressButton(34);
+        break;
+
+        case 'D':
+        Joystick.pressButton(35);
+        break;
+      
+        default:
+        break;
+      }  
+
+    ChangeTime = millis();
+    break;
+    
+    default:                         
+    break;
+
+  }
+  
   // Actualizacion de estados de los ejes logicos segun estado de los fisicos y segun el modo
   if (!ModoShift){
 
@@ -236,17 +417,25 @@ void loop() {
 
   }
 
-  Joystick.setButton(4,EstadoBoton4);
-  Joystick.setButton(5,EstadoBoton5);
+  Joystick.setButton(36,EstadoBoton36);
+  Joystick.setButton(37,EstadoBoton37);
   
 
   // Para apagar los botones logicos una vez transcurrido X tiempo desde el encendido
   if (ChangeTime != 0 && (millis() - ChangeTime) > CLEARTIME ){
 
+    for (int i = 0; i < 36; i++)
+    {
+      Joystick.releaseButton(i);
+    }
+    
+    /*
     Joystick.releaseButton(0);
     Joystick.releaseButton(1);
     Joystick.releaseButton(2);
     Joystick.releaseButton(3);
+    */
+
     Joystick.sendState();
     ChangeTime=0;
         
