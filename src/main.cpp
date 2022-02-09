@@ -40,7 +40,8 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 #include "Joystick.h"
 #include <OneButton.h> // Interesante: https://github.com/mathertel/OneButton
 #include <jled.h> // Para los led, a ver si rula esta vez ....
-#include <MD_UISwitch.h> //Para el teclado 4x4
+//#include <MD_UISwitch.h> //Para el teclado 4x4
+#include <Keypad.h> //Para el teclado 4x4
 
 #pragma endregion
 
@@ -54,11 +55,26 @@ Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
 #define PIN_LED_1 10
 
 //Para el teclado 4x4
+/*
 uint8_t rowPins[] = { 5, 4, 3, 2 };     // connected to keypad row pinouts
 uint8_t colPins[] = { 9, 8, 7, 6 };   // connected to the keypad column pinouts
 const uint8_t ROWS = sizeof(rowPins);
 const uint8_t COLS = sizeof(colPins);
 char kt[(ROWS*COLS) + 1] = "123A456B789C*0#D";  //define the symbols for the keypad
+*/
+
+//Para el teclado 4x4
+const byte ROWS = 4; //four rows
+const byte COLS = 4; //three columns
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {5, 4, 3, 2}; //connect to the row pinouts of the kpd
+byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the kpd
+String msg;
 
 
 #define CLEARTIME 100 // ms antes de apagar los botones logicos despues de un cambio
@@ -81,7 +97,8 @@ OneButton Boton1 = OneButton(
 );
 
 //Objeto para el teclado 4x4
-MD_UISwitch_Matrix Teclado(ROWS, COLS, rowPins, colPins, kt);
+//MD_UISwitch_Matrix Teclado(ROWS, COLS, rowPins, colPins, kt);
+Keypad Teclado = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // Objeto para el led
 JLed Led1 = JLed(PIN_LED_1);
@@ -209,6 +226,8 @@ void setup() {
   pinMode(PIN_LED_1, OUTPUT);
 
   //Teclado
+  msg = "";
+  /*
   Teclado.begin();
   Teclado.enableRepeat(false);
   Teclado.enableRepeatResult(false);
@@ -216,6 +235,8 @@ void setup() {
   Teclado.enableLongPress(true);
   Teclado.setDoublePressTime(50);
   Teclado.setLongPressTime(100);
+  */
+  
 
   // Puerto serie. Fin del setup
   Serial.begin(9600);
@@ -231,6 +252,33 @@ void loop() {
   Boton1.tick();
 
   //Lectura del teclado
+
+  if (Teclado.getKeys()){
+        for (int i=0; i<LIST_MAX; i++)   // Scan the whole key list.
+        {
+            if ( Teclado.key[i].stateChanged )   // Only find keys that have changed state.
+            {
+                switch (Teclado.key[i].kstate) {  // Report active key state : IDLE, PRESSED, HOLD, or RELEASED
+                    case PRESSED:
+                    msg = " PRESSED.";
+                break;
+                    case HOLD:
+                    msg = " HOLD.";
+                break;
+                    case RELEASED:
+                    msg = " RELEASED.";
+                break;
+                    case IDLE:
+                    msg = " IDLE.";
+                }
+                Serial.print("Key ");
+                Serial.print(Teclado.key[i].kchar);
+                Serial.println(msg);
+            }
+        }
+  }
+
+  /*
   MD_UISwitch::keyResult_t ModoTeclaPulsada = Teclado.read();
   switch(ModoTeclaPulsada){
     
@@ -390,6 +438,11 @@ void loop() {
 
   }
   
+  */
+
+
+
+
   // Actualizacion de estados de los ejes logicos segun estado de los fisicos y segun el modo
   if (!ModoShift){
 
@@ -424,18 +477,11 @@ void loop() {
   // Para apagar los botones logicos una vez transcurrido X tiempo desde el encendido
   if (ChangeTime != 0 && (millis() - ChangeTime) > CLEARTIME ){
 
-    for (int i = 0; i < 36; i++)
+    for (int i = 0; i < 4; i++)
     {
       Joystick.releaseButton(i);
     }
     
-    /*
-    Joystick.releaseButton(0);
-    Joystick.releaseButton(1);
-    Joystick.releaseButton(2);
-    Joystick.releaseButton(3);
-    */
-
     Joystick.sendState();
     ChangeTime=0;
         
