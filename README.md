@@ -1,9 +1,9 @@
-# JoyStickMatico V1.0
+# JoyStickMatico V2.0
 JoyStick controlado por Arduino, principalmente para su uso en Simuladores (Farming Simulator)
 
 Desarrollado con Visual Code + PlatformIO en Framework Arduino
 
-Desarrollado por Diego Maroto, Enero 2022 - dmarofer@diegomaroto.net
+Desarrollado por Diego Maroto, Febrero 2022 - dmarofer@diegomaroto.net
 
 https://bilbaomakers.org/
 
@@ -14,24 +14,28 @@ Desarrollado con la idea de multiplicar el numero de ejes y botones cuando es ne
 utilizarlos a la vez.
 
 El control fisico dispone de un JoyStick de 3 ejes y un boton
+Tambien dispone de una botonera matriz de 4x4 (no necesitan diodo)
+Al Sistema operativo le presenta 6 ejes y 21 botones
 
-Al Sistema operativo le presenta 6 ejes y 6 botones que funcionan Asi
+Mapa de Controles Logicos. referencia de los botones en el sistema operativo. En la libreria el primer indice es 0
 
-MODO 1 (Modo "Normal" - led apagado)
-  - Con el Joystick movemos los ejes logicos X,Y,Z
-  - Con el boton click sencillo se hace click en el boton logico 1
-  - Con el boton doble click se hace click en el boton logico 2
-  - Con el boton triple click se alterna el estado del boton logico 3
-
-MODO 2 (Modo "Shift" - led encendido)
-  - Con el Joystick movemos los ejes logicos RX,RY,RZ
-  - Con el boton click sencillo se hace click en el boton logico 4
-  - Con el boton doble click se hace click en el boton logico 5
-  - Con el boton triple click se alterna el estado del boton logico 6
-
-Haciendo HOLD (pulsado mas del tiempo configurado) el boton se alterna el modo de trabajo.
-
+MODO 1: LED APAGADO
+MODO 2: LED ENCENDIDO
+Haciendo HOLD (pulsado mas del tiempo configurado) el boton del JoyStick se alterna el modo de trabajo.
 Fuera del modo los ejes logicos presentan estado centrado (0,0,0)
+
+X,Y,Z - Ejes del JoyStick en modo 1
+Rx,Ry,Rz - Ejes del JoyStick en modo 2
+B1 - Click del boton fisico del JoyStick en cualquiera de los 2 modos
+B2 - Doble click del boton del JoyStick en modo 1
+B3 - Triple click del boton del JoyStick en modo 1
+B4 - Doble click del boton del JoyStick en modo 2
+B5 - Triple click del boton del JoyStick en modo 2
+B[6-21] - Matriz 4x4 (123A456B789C*0#D)
+
+B1, B2 y B4 emulan automaticamente una pulsacion (se desactivan al tiempo estbalecido)
+B3 y B5 Cambian de estado cada vez que se activan (toggle)
+B[6-21] Se pueden pulsar hasta 10 simultaneamente y reflejan el estado fisico del boton siempre (pulsado o no)
 
 
 ![](Imagen1.png)
