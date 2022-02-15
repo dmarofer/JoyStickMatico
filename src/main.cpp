@@ -231,6 +231,8 @@ void loop() {
   // Lectura del Teclado. Botones 6-21 (Indice 5-20).
   if (Teclado.getKeys()){
   
+    
+    
     for (int i=0; i<LIST_MAX; i++){         // Bucle para escanear todo el buffer (10)
     
       if ( Teclado.key[i].stateChanged ){   // Si la tecla ha cambiado de estado
@@ -238,11 +240,11 @@ void loop() {
         switch (Teclado.key[i].kstate) {    // Mirar su estado actual
     
             case PRESSED:
-            Joystick.pressButton(i+4);      // Actualizar en el objeto JoyStick. Offset de indice +4
+            Joystick.pressButton(Teclado.key[i].kcode + 5);      // Actualizar en el objeto JoyStick. Offset de indice +4
             break;
             
             case RELEASED:
-            Joystick.releaseButton(i+4);    // Actualizar en el objeto JoyStick. Offset de indice +4
+            Joystick.releaseButton(Teclado.key[i].kcode + 5);    // Actualizar en el objeto JoyStick. Offset de indice +4
             break;
             
             default:
