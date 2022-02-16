@@ -44,7 +44,7 @@ B[6-21] Se pueden pulsar hasta 10 simultaneamente y reflejan el estado fisico de
 #include <Arduino.h>
 #include "Joystick.h"
 #include <OneButton.h> // Interesante: https://github.com/mathertel/OneButton
-#include <jled.h> // Para los led, a ver si rula esta vez ....
+#include <BlinkControl.h> // Para el LED
 #include <Keypad.h> //Para el teclado 4x4
 
 #pragma endregion
@@ -98,7 +98,7 @@ OneButton Boton1 = OneButton(
 Keypad Teclado = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 // Objeto para el led
-JLed Led1 = JLed(PIN_LED_1);
+BlinkControl Led1(PIN_LED_1);
 
 // Variables internas
 unsigned long ChangeTime = 0; // Variable para los millis cuando hay un cambio de boton
@@ -218,14 +218,14 @@ void setup() {
   // Puerto serie. Fin del setup
   Serial.begin(9600);
   Serial.println("##SETUP COMPLETADO");
-  Led1.Blink(200,200).Repeat(5);
-
+  Led1.begin();
+  
 }
 
 void loop() {
 
   // Funciones de vida de los objetos
-  Led1.Update();
+  Led1.loop();
   Boton1.tick();
   
   // Lectura del Teclado. Botones 6-21 (Indice 5-20).
@@ -261,7 +261,7 @@ void loop() {
   if (!Modo2){
 
     // Modo Ejes Normal
-    Led1.Off();
+    Led1.off();
     Joystick.setXAxis(map(analogRead(PIN_EJE_X),280,743,-127,127));
     Joystick.setYAxis(map(analogRead(PIN_EJE_Y),280,743,-127,127));
     Joystick.setZAxis(map(analogRead(PIN_EJE_Z),200,823,127,-127));
@@ -274,7 +274,7 @@ void loop() {
   else{
 
     // Modo alternativo Ejes
-    Led1.Blink(200,200).Forever();
+    Led1.blink3();
     Joystick.setXAxis(0);
     Joystick.setYAxis(0);
     Joystick.setZAxis(0);
